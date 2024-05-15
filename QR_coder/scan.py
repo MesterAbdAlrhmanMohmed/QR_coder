@@ -1,7 +1,8 @@
 from PyQt6 import QtWidgets as qt
 from PyQt6 import QtGui as qt1
 from PyQt6 import QtCore as qt2
-import webbrowser,cv2,pyperclip
+from PyQt6.QtWidgets import QFileDialog
+import cv2,pyperclip,webbrowser
 class dialog(qt.QDialog):
     def __init__(self, parent):
         super().__init__(parent)
@@ -36,16 +37,17 @@ class dialog(qt.QDialog):
         l.addWidget(self.نتيجة)
         l.addWidget(self.نسخ)
         l.addWidget(self.رابط)
+    
     def opinFile(self):
-        file=qt.QFileDialog()
-        file.setAcceptMode(qt.QFileDialog.AcceptMode.AcceptOpen)
-        if file.exec()==qt.QFileDialog.DialogCode.Accepted:
-            self.مسار.setText(file.selectedFiles()[0])                                 
-    def scan(self):
+        file, _ = QFileDialog.getOpenFileName(self, "تحديد صورة", "", "صور (*.png *.jpg *.jpeg)")
+        if file:
+            self.مسار.setText(file)                                 
+    
+    def scan(self):        
+        الصورة=cv2.imread(self.مسار.text())
+        الماسح=cv2.QRCodeDetector()
         try:
-            الصورة=cv2.imread(self.مسار.text())
-            الماسح=cv2.QRCodeDetector()
-            البيانات, bbox, _ = الماسح.detectAndDecode(الصورة)
+            البيانات, bbox, _ = الماسح.detectAndDecodeMulti(الصورة)
             if bbox is not None:
                 self.نتيجة.setText(البيانات)
                 self.نتيجة.setFocus()
@@ -54,8 +56,8 @@ class dialog(qt.QDialog):
             if البيانات.startswith("http"):
                 self.رابط.setDisabled(False)
         except:
-            qt.QMessageBox.warning(self,"تنبيه","يرجى تحديد صورة أولا, أو التأكد أن حجم الصورة كبير وجودتها عالية")
+            qt.QMessageBox.warning(self,"تنبيه","حدث خطأ في مسح الصورة, ربما الصورة فارغة أو غير صالحة")
     def copy(self):
-        pyperclip.copy(self.نتيجة.text())
+        pyperclip.copy(self.نتيجة.text())    
     def opin_link(self):
-        webbrowser.open(self.نتيجة.text())    
+        webbrowser.open(self.نتيجة.text())

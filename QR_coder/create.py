@@ -1,7 +1,7 @@
 from PyQt6 import QtWidgets as qt
 from PyQt6 import QtGui as qt1
 from PyQt6 import QtCore as qt2
-import qrcode
+import qrcode,os
 class dialog(qt.QDialog):
     def __init__(self, parent):
         super().__init__(parent)
@@ -30,7 +30,7 @@ class dialog(qt.QDialog):
         file=qt.QFileDialog()
         file.setAcceptMode(qt.QFileDialog.AcceptMode.AcceptOpen)
         if file.exec()==qt.QFileDialog.DialogCode.Accepted:
-            self.مسار.setText(file.selectedFiles()[0])                                         
+            self.مسار.setText(file.selectedFiles()[0])                                             
     def create(self):        
         if not self.مسار.text().lower().endswith(('.png', '.jpg', '.jpeg')):                    
             qt.QMessageBox.warning(self, "تنبيه", "عند تحديد مسار الحفظ يجب كتابة إسم ملف الصورة ووضع في نهايته امتداد صورة (png, jpg, jpeg)")
@@ -38,6 +38,6 @@ class dialog(qt.QDialog):
         if not self.المحتوا.text():        
             qt.QMessageBox.warning(self, "تنبيه", "يجب إدخال المحتوى")
             return
-        الرمز=qrcode.make(self.المحتوا.text())        
-        الرمز.save(self.مسار.text())
+        الرمز=qrcode.make(self.المحتوا.text(),box_size=20)
+        الرمز.save(self.مسار.text())                    
         qt.QMessageBox.information(self,"تنبيه","تم إنشاء رمز QR وحفظه")
